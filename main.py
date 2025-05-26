@@ -2,7 +2,7 @@ import asyncio
 import logging
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request ,Form
 import httpx
 import websockets
 from ocpp.routing import on
@@ -124,7 +124,6 @@ async def stop_session():
     global charging_task
     if charger_status["status"] != "Charging":
         raise HTTPException(status_code=400, detail="No active session to stop")
-
     if charging_task:
         charging_task.cancel()
         charging_task = None
@@ -142,7 +141,6 @@ async def stop_session():
         "last_session": session,
         "final_battery_level": final_level
     }
-
 @app.get("/charging-ui-status")
 async def get_ui_status(request: Request):
     if charger_status["status"] != "Charging" or not charger_status["current_session"]:
@@ -150,7 +148,6 @@ async def get_ui_status(request: Request):
             "status": "Available",
             "message": "No active session"
         }
-
     start_time_str = charger_status["current_session"]["start_time"]
     start_time = datetime.fromisoformat(start_time_str)
     now = datetime.utcnow()
@@ -173,7 +170,6 @@ async def get_ui_status(request: Request):
             "lat": 28.6139, "lon": 77.2090  # sample coords
         }
     }
-
 
 @app.get("/get-charger-third-party-data")
 async def get_charger_metadata():
