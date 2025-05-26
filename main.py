@@ -2,7 +2,7 @@ import asyncio
 import logging
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Request ,Form
+from fastapi import FastAPI, HTTPException, Request, Form, WebSocket
 import httpx
 import websockets
 from ocpp.routing import on
@@ -11,12 +11,20 @@ from ocpp.v16.enums import RegistrationStatus
 from ocpp.v16 import call_result
 import threading
 
+# ✅ FastAPI App must be declared before any route decorators
+app = FastAPI()
+
+# -------------------- WebSocket Endpoint --------------------
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Echo: {data}")
+
 # -------------------- Logging Setup --------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ev-charger")
-
-# -------------------- FastAPI App --------------------
-app = FastAPI()
 
 # -------------------- Charger Status --------------------
 charger_status = {
@@ -141,6 +149,7 @@ async def stop_session():
         "last_session": session,
         "final_battery_level": final_level
     }
+
 @app.get("/charging-ui-status")
 async def get_ui_status(request: Request):
     if charger_status["status"] != "Charging" or not charger_status["current_session"]:
@@ -155,8 +164,7 @@ async def get_ui_status(request: Request):
 
     battery = charger_status["charging_progress"]["battery_level"]
     estimated_left = charger_status["charging_progress"]["estimated_time_left"]
-    
-    # Simulated cost: $0.20 per 1% charge
+
     cost = round(battery * 0.20, 2)
 
     return {
@@ -167,7 +175,7 @@ async def get_ui_status(request: Request):
         "charging_cost": f"${cost:.2f}",
         "station_name": "EV Station A1",
         "map_location": {
-            "lat": 28.6139, "lon": 77.2090  # sample coords
+            "lat": 28.6139, "lon": 77.2090
         }
     }
 
