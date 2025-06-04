@@ -1,23 +1,23 @@
-import asyncio
-import logging
-from datetime import datetime
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
-import httpx
-import websockets
-from ocpp.routing import on
-from ocpp.v16 import ChargePoint as OcppChargePoint
-from ocpp.v16.enums import RegistrationStatus
-from ocpp.v16 import call_result
-import threading
+# import asyncio
+# import logging
+# from datetime import datetime
+# from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+# import httpx
+# import websockets
+# from ocpp.routing import on
+# from ocpp.v16 import ChargePoint as OcppChargePoint
+# from ocpp.v16.enums import RegistrationStatus
+# from ocpp.v16 import call_result
+# import threading
 
-app = FastAPI(title="EV Charger API")
+# app = FastAPI(title="EV Charger API")
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("ev-charger")
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger("ev-charger")
 
-charging_ws_clients = set()
+# charging_ws_clients = set()
 
-@app.websocket("/ws")
+# @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     charging_ws_clients.add(websocket)
